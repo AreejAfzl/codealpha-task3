@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Music Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://i.gifer.com/origin/55/554818561cbf36d813ef2010cc9d66cc.gif') no-repeat center center fixed;
+            background-size: cover;
+            overflow: auto; /* Ensure the body can scroll */
+            position: relative;
+            animation: backgroundColorChange 15s infinite; /* Add animation */
+        }
+        
+        @keyframes backgroundColorChange {
+            0% { background-color: #ff6f61; }
+            25% { background-color: #6b5b95; }
+            50% { background-color: #88b04b; }
+            75% { background-color: #f7c6c7; }
+            100% { background-color: #ff6f61; }
+        }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1; /* Ensure the container is above the background color animation */
+        }
+        
+        .player {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        
+        .search-bar {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            outline: none;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        
+        .search-bar input::placeholder {
+            color: #888;
+        }
+        
+        .more-options {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .more-options:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .more-options::before {
+            content: '⋮';
+            font-size: 24px;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+        }
+        
+        .album-art {
+            width: 200px; /* Adjusted size for the album art */
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 0 auto 20px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        .controls button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 18px;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        
+        .controls button:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+        
+        .controls button.stop {
+            background: #ff4d4d;
+        }
+        
+        .controls button.stop:hover {
+            background: #cc0000;
+        }
+        
+        .track-info {
+            margin: 10px 0;
+            color: #333;
+        }
+        
+        .track-info span {
+            display: block;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            appearance: none;
+            background: #ddd;
+            border-radius: 5px;
+            height: 8px;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            background: #007bff;
+            border-radius: 50%;
+            height: 20px;
+            width: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            background: #007bff;
+            border-radius: 50%;
+            height: 20px;
+            width: 20px;
+            cursor: pointer;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: #007bff;
+            border-radius: 5px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .volume-display {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .volume-display span {
+            display: block;
+            color: #333;
+        }
+        
+        .shuffle-button {
+            background: #f0ad4e;
+        }
+        
+        .shuffle-button.active {
+            background: #d9534f;
+        }
+        
+        .like-button {
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            color: #888;
+        }
+        
+        .like-button.liked {
+            color: red;
+        }
+        
+        .track-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .track-list .track {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        .track-list .track img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+        
+        .track-list .track div {
+            flex: 1;
+        }
+        
+        .track-list .track span {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .player {
+                width: 100%;
+                max-width: none;
+                padding: 10px;
+            }
+            .search-bar input {
+                width: 100%;
+                max-width: none;
+                padding: 8px;
+            }
+            .bottom-controls {
+                flex-direction: column;
+            }
+            .bottom-controls button {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="player">
+            <div class="more-options"></div>
+            <div class="logo">🎵</div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search for songs, albums, or artists">
+            </div>
+            <div class="album-art" id="albumArt"></div>
+            <audio id="audio"></audio>
+            <div class="controls">
+                <button class="shuffle-button" onclick="toggleShuffle()">🔀</button>
+                <button onclick="prevTrack()">&#9664;</button> <!-- Previous -->
+                <button onclick="playPause()">&#9658;</button> <!-- Play/Pause -->
+                <button class="stop" onclick="stop()">&#9632;</button> <!-- Stop -->
+                <button onclick="nextTrack()">&#9654;</button> <!-- Next -->
+                <button class="like-button" onclick="toggleLike()">❤️</button>
+            </div>
+            <div class="track-info">
+                <span id="trackName">Track: -</span>
+                <span id="currentTime">Current Time: 0:00</span>
+                <span id="duration">Duration: 0:00</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+            </div>
+            <input type="range" id="seekBar" value="0" step="0.1" min="0">
+            <div class="volume-display">
+                <span>Volume: <span id="volumeDisplay">100</span>%</span>
+            </div>
+            <input type="range" id="volumeControl" value="100" step="1" min="0" max="100">
+            <div class="track-list" id="trackList"></div>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('audio');
+        const playPauseButton = document.querySelector('.controls button:nth-of-type(3)');
+        const seekBar = document.getElementById('seekBar');
+        const volumeControl = document.getElementById('volumeControl');
+        const trackName = document.getElementById('trackName');
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const durationDisplay = document.getElementById('duration');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const volumeDisplay = document.getElementById('volumeDisplay');
+        const albumArt = document.getElementById('albumArt');
+        const likeButton = document.querySelector('.like-button');
+        const shuffleButton = document.querySelector('.shuffle-button');
+        const trackList = document.getElementById('trackList');
+
+        let tracks = [
+            {src: 'your-audio-file.mp3', art: 'https://1.bp.blogspot.com/-KfTffxQayvM/Uf-d9zD4e0I/AAAAAAAAAFE/y41sy-m20UM/s1600/arif.jpg', name: 'Track 1', duration: '3:15'},
+            {src: 'another-audio-file.mp3', art: 'https://top10inpakistan.com/wp-content/uploads/2020/01/WhatsApp-Image-2020-01-04-at-5.03.59-PM.jpeg', name: 'Track 2', duration: '4:05'},
+            {src: 'yet-another-audio-file.mp3', art: 'https://s4.scoopwhoop.com/anj/qurat/633281667.gif', name: 'Track 3', duration: '2:50'}
+        ];
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+        let isShuffle = false;
+        let isLiked = false;
+
+        function updateUI() {
+            seekBar.value = audio.currentTime;
+            volumeControl.value = audio.volume * 100;
+            progressBarFill.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+            currentTimeDisplay.textContent = `Current Time: ${formatTime(audio.currentTime)}`;
+            durationDisplay.textContent = `Duration: ${formatTime(audio.duration)}`;
+            trackName.textContent = `Track: ${tracks[currentTrackIndex].name}`;
+            albumArt.style.backgroundImage = `url(${tracks[currentTrackIndex].art})`;
+            volumeDisplay.textContent = Math.round(audio.volume * 100);
+            likeButton.classList.toggle('liked', isLiked);
+            shuffleButton.classList.toggle('active', isShuffle);
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function playPause() {
+            if (audio.paused) {
+                audio.play();
+                playPauseButton.innerHTML = '&#10074;&#10074;'; // Pause
+            } else {
+                audio.pause();
+                playPauseButton.innerHTML = '&#9658;'; // Play
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function stop() {
+            audio.pause();
+            audio.currentTime = 0;
+            playPauseButton.innerHTML = '&#9658;'; // Play
+            isPlaying = false;
+        }
+
+        function prevTrack() {
+            if (isShuffle) {
+                // Shuffle logic can be implemented here
+            } else {
+                currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+                loadTrack();
+            }
+        }
+
+        function nextTrack() {
+            if (isShuffle) {
+                // Shuffle logic can be implemented here
+            } else {
+                currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+                loadTrack();
+            }
+        }
+
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            shuffleButton.classList.toggle('active', isShuffle);
+        }
+
+        function toggleLike() {
+            isLiked = !isLiked;
+            likeButton.classList.toggle('liked', isLiked);
+        }
+
+        function loadTrack() {
+            audio.src = tracks[currentTrackIndex].src;
+            audio.play();
+            playPauseButton.innerHTML = '&#10074;&#10074;'; // Pause
+            updateUI();
+        }
+
+        function loadTrackFromList(index) {
+            currentTrackIndex = index;
+            loadTrack();
+        }
+
+        function populateTrackList() {
+            trackList.innerHTML = '';
+            tracks.forEach((track, index) => {
+                const trackElement = document.createElement('div');
+                trackElement.classList.add('track');
+                trackElement.innerHTML = `
+                    <img src="${track.art}" alt="${track.name}">
+                    <div>
+                        <span>${track.name}</span>
+                        <span>${track.duration}</span>
+                    </div>
+                `;
+                trackElement.addEventListener('click', () => loadTrackFromList(index));
+                trackList.appendChild(trackElement);
+            });
+        }
+
+        audio.addEventListener('timeupdate', updateUI);
+        audio.addEventListener('loadedmetadata', updateUI);
+
+        seekBar.addEventListener('input', () => {
+            audio.currentTime = seekBar.value;
+        });
+
+        volumeControl.addEventListener('input', () => {
+            audio.volume = volumeControl.value / 100;
+            volumeDisplay.textContent = Math.round(audio.volume * 100);
+        });
+
+        // Initialize
+        populateTrackList();
+        loadTrack();
+    </script>
+
+</body>
+</html>
